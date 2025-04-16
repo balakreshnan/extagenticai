@@ -117,9 +117,16 @@ async def redteam_agent(query: str) -> str:
         num_objectives=2,
     )
 
+    azure_openai_config = {
+        "azure_endpoint": os.getenv("AZURE_OPENAI_RED_ENDPOINT_MINI"),
+        "azure_deployment": "gpt-4.1-mini",
+        "api_key": os.getenv("AZURE_OPENAI_API_KEY")
+    }
+
     # Run the red team scan with multiple attack strategies
     advanced_result = await model_red_team.scan(
-        target=advanced_callback,
+        # target=advanced_callback,
+        target=azure_openai_config,
         scan_name="Advanced-Callback-Scan",
         attack_strategies=[
             AttackStrategy.EASY,  # Group of easy complexity attacks
@@ -132,8 +139,19 @@ async def redteam_agent(query: str) -> str:
             #AttackStrategy.Leetspeak,  # Use Leetspeak
             #AttackStrategy.Url,  # Use URLs in prompts
             #AttackStrategy.Binary,  # Encode prompts in binary
+            AttackStrategy.Flip,
+            AttackStrategy.Jailbreak,
+            AttackStrategy.Tense,
+            AttackStrategy.ROT13,
+            AttackStrategy.UnicodeConfusable,
+            AttackStrategy.UnicodeSubstitution,
+            AttackStrategy.Leetspeak,
+            AttackStrategy.Morse,
+            AttackStrategy.DIFFICULT,
             AttackStrategy.Compose([AttackStrategy.Base64, AttackStrategy.ROT13]),  # Use two strategies in one attack
         ],
+        max_parallel_tasks=40,
+        timeout=4800,
         output_path="./Advanced-Callback-Scan.json",
     )
 
